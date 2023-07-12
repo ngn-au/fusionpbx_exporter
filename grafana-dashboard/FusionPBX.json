@@ -708,7 +708,7 @@
           "type": "prometheus",
           "uid": "${DS_PROMETHEUS}"
         },
-        "definition": "label_values(domain)",
+        "definition": "label_values({instance=\"$instance\"},domain)",
         "hide": 0,
         "includeAll": true,
         "label": "Domain: ",
@@ -716,7 +716,7 @@
         "name": "domain",
         "options": [],
         "query": {
-          "query": "label_values(domain)",
+          "query": "label_values({instance=\"$instance\"},domain)",
           "refId": "PrometheusVariableQueryEditor-VariableQuery"
         },
         "refresh": 1,
@@ -751,13 +751,13 @@
     ]
   },
   "time": {
-    "from": "now-30m",
+    "from": "now-1h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
   "title": "FusionPBX",
   "uid": "f75135ff-1bee-43dc-bac6-99546a67ab07",
-  "version": 46,
+  "version": 47,
   "weekStart": ""
 }
