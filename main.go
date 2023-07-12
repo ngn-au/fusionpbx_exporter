@@ -25,7 +25,7 @@ var (
 
 	mosMetrics = make(map[string]prometheus.Gauge)
 	durationMetrics = make(map[string]prometheus.Gauge)
-	
+
 	user     = kingpin.Flag("user", "PostgreSQL username").Default("fusionpbx").String()
 	password = kingpin.Flag("password", "PostgreSQL password").Default("password").String()
 	dbname   = kingpin.Flag("dbname", "PostgreSQL database name").Default("fusionpbx").String()
@@ -56,6 +56,9 @@ func collectMetrics() {
 	for _, g := range mosMetrics {
 		g.Set(0)
 	}
+	for _, g := range durationMetrics {
+		g.Set(0)
+	}
 
 	connStr := fmt.Sprintf("user=%s password=%s dbname=%s host=%s port=%s sslmode=disable", *user, *password, *dbname, *host, *port)
 
@@ -66,14 +69,14 @@ func collectMetrics() {
 	}
 
 	// Query the count of domains
-	var domainCount float64
+	var domainCount sql.NullFloat64
 	err = db.QueryRow("SELECT COUNT(*) FROM v_domains").Scan(&domainCount)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// Set the value of the domain count gauge
-	domainCountGauge.Set(domainCount)
+	domainCountGauge.Set(domainCount.Float64)
 
 	// Execute your query
 	rows, err := db.Query("SELECT d.domain_name, COUNT(e.extension) FROM v_domains d JOIN v_extensions e ON d.domain_uuid = e.domain_uuid GROUP BY d.domain_name")
@@ -84,7 +87,7 @@ func collectMetrics() {
 	// Collect the results
 	for rows.Next() {
 		var domain string
-		var count float64
+		var count sql.NullFloat64
 		if err := rows.Scan(&domain, &count); err != nil {
 			log.Fatal(err)
 		}
@@ -102,11 +105,11 @@ func collectMetrics() {
 		}
 
 		// Set the value of the gauge to the result of the query
-		gauge.Set(count)
+		gauge.Set(count.Float64)
 	}
 
 	// Execute your query
-	rows, err = db.Query("SELECT d.domain_name, COUNT(*) FROM v_domains d JOIN v_xml_cdr c ON d.domain_uuid = c.domain_uuid WHERE c.hangup_cause = 'NORMAL_CLEARING' AND c.start_stamp > clock_timestamp() - INTERVAL '15 seconds' GROUP BY d.domain_name")
+	rows, err = db.Query("SELECT d.domain_name, COUNT(*) FROM v_domains d JOIN v_xml_cdr c ON d.domain_uuid = c.domain_uuid WHERE c.hangup_cause = 'NORMAL_CLEARING' AND c.end_stamp > clock_timestamp() - INTERVAL '15 seconds' GROUP BY d.domain_name")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -114,7 +117,7 @@ func collectMetrics() {
 	// Collect the results
 	for rows.Next() {
 		var domain string
-		var answeredCallsCount float64
+		var answeredCallsCount sql.NullFloat64
 		if err := rows.Scan(&domain, &answeredCallsCount); err != nil {
 			log.Fatal(err)
 		}
@@ -132,18 +135,18 @@ func collectMetrics() {
 		}
 
 		// Set the value of the gauge to the result of the query
-		gauge.Set(answeredCallsCount)
+		gauge.Set(answeredCallsCount.Float64)
 	}
 
 	// Execute your query for outbound calls in last 15 seconds
-	rows, err = db.Query("SELECT domain_name, COUNT(*) FROM v_xml_cdr WHERE direction = 'outbound' AND start_stamp > clock_timestamp() - INTERVAL '15 seconds' GROUP BY domain_name")
+	rows, err = db.Query("SELECT domain_name, COUNT(*) FROM v_xml_cdr WHERE direction = 'outbound' AND end_stamp > clock_timestamp() - INTERVAL '15 seconds' GROUP BY domain_name")
 	if err != nil {
 		log.Fatal(err)
 	}
 	// Collect the results
 	for rows.Next() {
 		var domain string
-		var count float64
+		var count sql.NullFloat64
 		if err := rows.Scan(&domain, &count); err != nil {
 			log.Fatal(err)
 		}
@@ -161,18 +164,18 @@ func collectMetrics() {
 		}
 
 		// Set the value of the gauge to the result of the query
-		gauge.Set(count)
+		gauge.Set(count.Float64)
 	}
 
 	// Execute your query for inbound calls in last 15 seconds
-	rows, err = db.Query("SELECT domain_name, COUNT(*) FROM v_xml_cdr WHERE direction = 'inbound' AND start_stamp > clock_timestamp() - INTERVAL '15 seconds' GROUP BY domain_name")
+	rows, err = db.Query("SELECT domain_name, COUNT(*) FROM v_xml_cdr WHERE direction = 'inbound' AND end_stamp > clock_timestamp() - INTERVAL '15 seconds' GROUP BY domain_name")
 	if err != nil {
 		log.Fatal(err)
 	}
 	// Collect the results
 	for rows.Next() {
 		var domain string
-		var count float64
+		var count sql.NullFloat64
 		if err := rows.Scan(&domain, &count); err != nil {
 			log.Fatal(err)
 		}
@@ -190,10 +193,10 @@ func collectMetrics() {
 		}
 
 		// Set the value of the gauge to the result of the query
-		gauge.Set(count)
+		gauge.Set(count.Float64)
 	}
 
-	rows, err = db.Query("SELECT domain_name, AVG(rtp_audio_in_mos) FROM v_xml_cdr WHERE start_stamp > clock_timestamp() - INTERVAL '15 seconds' GROUP BY domain_name")
+	rows, err = db.Query("SELECT domain_name, AVG(rtp_audio_in_mos) FROM v_xml_cdr WHERE end_stamp > clock_timestamp() - INTERVAL '15 seconds' GROUP BY domain_name")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -201,7 +204,7 @@ func collectMetrics() {
 	// Collect the results
 	for rows.Next() {
 		var domain string
-		var avgMOS float64
+		var avgMOS sql.NullFloat64
 		if err := rows.Scan(&domain, &avgMOS); err != nil {
 			log.Fatal(err)
 		}
@@ -219,17 +222,17 @@ func collectMetrics() {
 		}
 	
 		// Set the value of the gauge to the result of the query
-		gauge.Set(avgMOS)
+		gauge.Set(avgMOS.Float64)
 	}
 
-	rows, err = db.Query("SELECT domain_name, AVG(duration) FROM v_xml_cdr WHERE start_stamp > clock_timestamp() - INTERVAL '15 seconds' GROUP BY domain_name")
+	rows, err = db.Query("SELECT domain_name, AVG(duration) FROM v_xml_cdr WHERE end_stamp > clock_timestamp() - INTERVAL '15 seconds' GROUP BY domain_name")
 	if err != nil {
 		log.Fatal(err)
 	}
 	// Collect the results
 	for rows.Next() {
 		var domain string
-		var avgDuration float64
+		var avgDuration sql.NullFloat64
 		if err := rows.Scan(&domain, &avgDuration); err != nil {
 			log.Fatal(err)
 		}
@@ -247,7 +250,7 @@ func collectMetrics() {
 		}
 	
 		// Set the value of the gauge to the result of the query
-		gauge.Set(avgDuration)
+		gauge.Set(avgDuration.Float64)
 	}
 	rows.Close()
 	
