@@ -1,6 +1,8 @@
 # fusionpbx_exporter
 Prometheus exporter for FusionPBX Multi-Tenant based metrics
 
+Inspired by: https://github.com/florentchauveau/freeswitch_exporter
+
 `./fusionpbx_exporter --password YourSecretPassword`
 
 You can find your password in `/etc/fusionpbx/config.php`
