@@ -168,7 +168,7 @@ func collectMetrics() {
 	}
 
 	// Execute your query for inbound calls in last 15 seconds
-	rows, err = db.Query("SELECT domain_name, COUNT(*) FROM v_xml_cdr WHERE direction = 'inbound' AND end_stamp > clock_timestamp() - INTERVAL '15 seconds' AND caller_destination IS NOT NULL GROUP BY domain_name")
+	rows, err = db.Query("SELECT domain_name, COUNT(*) FROM v_xml_cdr WHERE direction = 'inbound' AND end_stamp > clock_timestamp() - INTERVAL '15 seconds' AND hangup_cause != 'LOSE_RACE' GROUP BY domain_name")
 	if err != nil {
 		log.Fatal(err)
 	}
