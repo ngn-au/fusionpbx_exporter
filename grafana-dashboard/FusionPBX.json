@@ -452,7 +452,7 @@
           },
           "editorMode": "code",
           "exemplar": true,
-          "expr": "average_mos_per_domain{domain=~\"$domain\", instance=\"$instance\"}",
+          "expr": "avg_mos_per_domain{domain=~\"$domain\", instance=\"$instance\"}",
           "format": "table",
           "instant": false,
           "interval": "",
