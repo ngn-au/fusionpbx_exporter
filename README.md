@@ -35,3 +35,6 @@ Flags:
   --port="5432"          PostgreSQL port
 
 ```
+
+**Grafana Dashboard**
+https://grafana.com/grafana/dashboards/19155-fusionpbx/
