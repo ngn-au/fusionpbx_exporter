@@ -1,11 +1,13 @@
 # fusionpbx_exporter
 Prometheus exporter for FusionPBX Multi-Tenant based metrics
+<img width="1459" alt="Screenshot 2023-07-12 at 3 42 49 pm" src="https://github.com/ngn-au/fusionpbx_exporter/assets/107200645/28feda6d-fcc6-48b0-b6fd-7625b8d48fd4">
 
 Inspired by: https://github.com/florentchauveau/freeswitch_exporter
 
 `./fusionpbx_exporter --password YourSecretPassword`
 
 You can find your password in `/etc/fusionpbx/config.php`
+
 
 
 **Prometheus Config:**
@@ -18,6 +20,7 @@ You can find your password in `/etc/fusionpbx/config.php`
     static_configs:
       - targets: ['fusionpbx:8080']
 ```
+
 
 **Usage:**
 ```
