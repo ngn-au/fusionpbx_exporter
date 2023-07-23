@@ -12,7 +12,7 @@ You can find your password in `/etc/fusionpbx/config.php`
 
 **Prometheus Config:**
 
-```
+```yaml
   - job_name: 'fusionpbx'
     # Override the global default and scrape targets from this job every 5 seconds.
     scrape_interval: 5s
@@ -24,7 +24,7 @@ You can find your password in `/etc/fusionpbx/config.php`
 
 
 **Usage:**
-```
+```bash
 fusionpbx_exporter --help
 usage: fusionpbx_exporter [<flags>]
 
