@@ -12,7 +12,8 @@ You can find your password in `/etc/fusionpbx/config.php`
 
 **Prometheus Config:**
 
-```  - job_name: 'fusionpbx'
+```
+  - job_name: 'fusionpbx'
     # Override the global default and scrape targets from this job every 5 seconds.
     scrape_interval: 5s
     # metrics_path defaults to '/metrics'
