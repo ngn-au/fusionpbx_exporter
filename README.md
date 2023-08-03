@@ -1,7 +1,5 @@
 # fusionpbx_exporter
 
-This code block completes the implementation of the CollectMetrics function. The function queries various metrics from the PostgreSQL database and sets them in Prometheus gauges. These metrics include:
-
     Number of extensions per domain: For each domain in the v_domains table, the number of associated extensions in the v_extensions table is counted and set in the corresponding gauge in the extensionsCount map.
 
     Number of answered calls per domain: For each domain in the v_domains table, the number of answered calls in the v_xml_cdr table (with a hangup cause of 'NORMAL_CLEARING' in the last 30 seconds) is counted and set in the corresponding gauge in the answeredCalls map.
