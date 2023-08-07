@@ -14,15 +14,6 @@
 
     Average call duration per domain: The average call duration per domain (calculated over the last 30 seconds) is set in the durationMetrics map.
 
-Each time a new domain is encountered in a query, a new gauge is created with the domain as a constant label, registered to the Prometheus registry, and added to the corresponding map. Existing gauges are reused.
-
-The function ends by closing the rows object and deferring the closure of the database connection. It's good practice to ensure that all open connections and objects that can be closed, like db and rows here, are closed when they are no longer needed. This can prevent resource leaks.
-
-This script will create a number of Prometheus metrics based on data in a FusionPBX database, which can then be scraped by a Prometheus server for monitoring and alerting purposes.
-
-Note that while this script seems to be functioning correctly, proper error handling around database operations and logging would improve its robustness. Moreover, the script seems to connect to the database and fetch the metrics every 10 seconds. This can be resource intensive, especially if the database is large or the queries are complex. One solution to this might be to increase the metrics collection interval, or implement some caching mechanism.
-
-
 
 Prometheus exporter for FusionPBX Multi-Tenant based metrics
 <img width="1459" alt="Screenshot 2023-07-12 at 3 42 49 pm" src="https://github.com/ngn-au/fusionpbx_exporter/assets/107200645/28feda6d-fcc6-48b0-b6fd-7625b8d48fd4">
